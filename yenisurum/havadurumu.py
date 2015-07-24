@@ -3,11 +3,14 @@
 
 from Tkinter import *
 from urllib import urlopen
+from urllib import urlretrieve
 from re import findall
 from codecs import open as ac
 from threading import Thread
 from tkMessageBox import *
 from subprocess import check_output
+import os
+from sqlite3 import connect
 
 check_output("chcp 1254", shell=True)
 
@@ -42,14 +45,14 @@ class HavaDurumu(Tk):
             sayisal_sicaklik = bul2[0].replace("&#176;C", "").replace(',', '.')
     
         if bul:
-            sicaklik = bul[0].replace("&#176;", u"Â°")
+            sicaklik = bul[0].replace("&#176;", u"°")
         elif bul2:
-            sicaklik = bul2[0].replace("&#176;", u"Â°")
-        self.hava_durumu["text"] = u"SÄ±caklÄ±k: "+sicaklik
-        self.sondurum["text"] = "Son gÃ¼ncelleme: "+son_bul[0][0]+" "+son_bul[0][1]
+            sicaklik = bul2[0].replace("&#176;", u"°")
+        self.hava_durumu["text"] = u"Sýcaklýk: "+sicaklik
+        self.sondurum["text"] = "Son güncelleme: "+son_bul[0][0]+" "+son_bul[0][1]
         
         if self.acilis and float(sayisal_sicaklik) > 38.0:
-            showwarning(u"UyarÄ± !", u"Hava Ä±sÄ±nÄ±yor.")
+            showwarning(u"Uyarý !", u"Hava ýsýnýyor.")
 
         self.acilis+=1
 
@@ -72,51 +75,48 @@ class HavaDurumu(Tk):
 
     def Cevir(self, dk):
         return (dk*1000*60)
-
-class Guncelleme(Thread):
-    def __init__(self):
-        super(Guncelleme, self).__init__()
-        self.calis = 1
-    
-    def run(self):
-        while 1:
-            if self.calis:
-                oku = urlopen("https://raw.githubusercontent.com/millipardus/Hava_Durumu/master/surum.txt").read()
-                global surum
-                surum = float(oku)
-                print surum
-                self.calis = 0
-            else:
-                break
             
 class Veritabani(object):
     def __init__(self):
+        self.surumCek()
         if not 'surum_bilgisi.db' in os.listdir('.'):
             self.vt = connect("surum_bilgisi.db")
             self.im = self.vt.cursor()
-            self.im.execute("CREATE TABLE surum (surum)")
-            self.im.execute("INSERT INTO surum VALUES (?)", (surum,))
+            self.im.execute("CREATE TABLE surum (surumb)")
+            self.im.execute("INSERT INTO surum VALUES (?)", (self.surum2,))
             self.vt.commit()
         else:
             self.vt = connect("surum_bilgisi.db")
             self.im = self.vt.cursor()
             self.im.execute("SELECT * FROM surum")
             self.surum = self.im.fetchall()[0][0]
-            if self.surum != surum:
-                soru = askquestion(u"GÃ¼ncelleme", u"Hava Durumu yazÄ±lÄ±mÄ±nÄ±n yeni sÃ¼rÃ¼mÃ¼ Ã§Ä±ktÄ±.", u"SÃ¼rÃ¼m: %s\nGÃ¼ncellemek ister misiniz ?" %surum)
+            if self.surum != self.surum2:
+                soru = askquestion(u"Güncelleme", u"Hava Durumu yazýlýmýnýn yeni sürümü çýktý.\nSürüm: %s\nGüncellemek ister misiniz ?" %surum)
                 if soru == "yes":
-                    showinfo(u"GÃ¼ncelleniyor",  u"Hava Durumu yazÄ±lÄ±mÄ± gÃ¼ncelleniyor...", u"Dosya indiriliyor...")
-                    urllib.urlretrieve("https://raw.githubusercontent.com/millipardus/Hava_Durumu/master/yenisurum/havadurumu.py", "havadurumu_yenisurum.py")
+                    showinfo(u"Güncelleniyor",  u"Hava Durumu yazýlýmý güncelleniyor...", detail=u"Dosya indiriliyor...")
+                    #urlretrieve("https://raw.githubusercontent.com/millipardus/Hava_Durumu/master/yenisurum/havadurumu.py", "havadurumu_yenisurum.py")
+                    kodlar = urlopen("https://raw.githubusercontent.com/millipardus/Hava_Durumu/master/yenisurum/havadurumu.py").read()
+                    
+                    codecs.open("havadurumu_yenisurum.py", mode="w", encoding="cp1254")
+                    
+                    
                     os.unlink(sys.argv[0])
                     os.rename("havadurumu_yenisurum.py", "havadurumu.py")
                     os.system("python havadurumu.py")
                     exit()
+        
+    def surumCek(self):
+        oku = urlopen("https://raw.githubusercontent.com/millipardus/Hava_Durumu/master/surum.txt").read()
+        global surum
+        surum = float(oku)
+        print surum
+        self.calis = 0
+        self.surum2 = surum
                     
 if __name__ == "__main__":
-    print "asddfhdgjksdhfg heyho yoldan Ã§Ä±k"
-    guncelle=  Guncelleme()
-    guncelle.start()
+    print u"heyho asdasdasdasdasdasd"
     pencere = HavaDurumu()
+    veritabani = Veritabani()
     pencere.mainloop()
 
     
