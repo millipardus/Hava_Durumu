@@ -100,9 +100,9 @@ class Veritabani(object):
                     
                     codecs.open("havadurumu_yenisurum.py", mode="w", encoding="cp1254")"""
                     
-                    self.im.execute("TRUNCATE TABLE surum")
+                    self.im.execute("DROP TABLE surum")
                     self.im.execute("CREATE TABLE surum (surumb)")
-                    self.im.execute("INSERT INTO surum VALUES (?)", (surum))
+                    self.im.execute("INSERT INTO surum VALUES (?)", (surum,))
                     self.vt.commit()
                     
                     os.unlink(sys.argv[0])
