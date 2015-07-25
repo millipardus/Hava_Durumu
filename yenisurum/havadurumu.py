@@ -94,11 +94,16 @@ class Veritabani(object):
                 soru = askquestion(u"Güncelleme", u"Hava Durumu yazýlýmýnýn yeni sürümü çýktý.\nSürüm: %s\nGüncellemek ister misiniz ?" %surum)
                 if soru == "yes":
                     showinfo(u"Güncelleniyor",  u"Hava Durumu yazýlýmý güncelleniyor...", detail=u"Dosya indiriliyor...")
-                    #urlretrieve("https://raw.githubusercontent.com/millipardus/Hava_Durumu/master/yenisurum/havadurumu.py", "havadurumu_yenisurum.py")
-                    kodlar = urlopen("https://raw.githubusercontent.com/millipardus/Hava_Durumu/master/yenisurum/havadurumu.py").read()
+                    urlretrieve("https://raw.githubusercontent.com/millipardus/Hava_Durumu/master/yenisurum/havadurumu.py", "havadurumu_yenisurum.py")
                     
-                    codecs.open("havadurumu_yenisurum.py", mode="w", encoding="cp1254")
+                    """kodlar = urlopen("https://raw.githubusercontent.com/millipardus/Hava_Durumu/master/yenisurum/havadurumu.py").read()
                     
+                    codecs.open("havadurumu_yenisurum.py", mode="w", encoding="cp1254")"""
+                    
+                    self.im.execute("TRUNCATE TABLE surum")
+                    self.im.execute("CREATE TABLE surum (surumb)")
+                    self.im.execute("INSERT INTO surum VALUES (?)", (surum))
+                    self.vt.commit()
                     
                     os.unlink(sys.argv[0])
                     os.rename("havadurumu_yenisurum.py", "havadurumu.py")
