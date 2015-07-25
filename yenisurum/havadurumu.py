@@ -91,24 +91,17 @@ class Veritabani(object):
             self.im.execute("SELECT * FROM surum")
             self.surum = self.im.fetchall()[0][0]
             if self.surum != self.surum2:
-                soru = askquestion(u"Güncelleme", u"Hava Durumu yazýlýmýnýn yeni sürümü çýktý.\nSürüm: %s\nGüncellemek ister misiniz ?" %surum)
+                soru = askquestion(u"Güncelleme", u"Hava Durumu yazýlýmýnýn yeni sürümü çýktý.\nSürüm: %s\nGüncellemek ister misiniz ?" %self.surum2)
                 if soru == "yes":
-                    showinfo(u"Güncelleniyor",  u"Hava Durumu yazýlýmý güncelleniyor...", detail=u"Dosya indiriliyor...")
-                    urlretrieve("https://raw.githubusercontent.com/millipardus/Hava_Durumu/master/yenisurum/havadurumu.py", "havadurumu_yenisurum.py")
-                    
-                    """kodlar = urlopen("https://raw.githubusercontent.com/millipardus/Hava_Durumu/master/yenisurum/havadurumu.py").read()
-                    
-                    codecs.open("havadurumu_yenisurum.py", mode="w", encoding="cp1254")"""
-                    
                     self.im.execute("DROP TABLE surum")
                     self.im.execute("CREATE TABLE surum (surumb)")
-                    self.im.execute("INSERT INTO surum VALUES (?)", (surum,))
+                    self.im.execute("INSERT INTO surum VALUES (?)", (self.surum2,))
                     self.vt.commit()
                     
-                    os.unlink(sys.argv[0])
-                    os.rename("havadurumu_yenisurum.py", "havadurumu.py")
-                    os.system("python havadurumu.py")
-                    exit()
+                    if sys.argv[0].endswith(".py"):
+                        os.system("python guncelle.py %s" %sys.argv[0])
+                    elif sys.argv[0].endswith(".exe"):
+                        os.system("guncelle.exe %s" %sys.argv[0])
         
     def surumCek(self):
         oku = urlopen("https://raw.githubusercontent.com/millipardus/Hava_Durumu/master/surum.txt").read()
@@ -119,10 +112,8 @@ class Veritabani(object):
         self.surum2 = surum
                     
 if __name__ == "__main__":
-    print u"heyho asdasdasdasdasdasd"
     pencere = HavaDurumu()
     veritabani = Veritabani()
-    showinfo()
     pencere.mainloop()
 
     
