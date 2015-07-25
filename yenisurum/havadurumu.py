@@ -89,7 +89,6 @@ class Veritabani(object):
             self.vt = connect("surum_bilgisi.db")
             self.im = self.vt.cursor()
             self.im.execute("SELECT * FROM surum")
-
             self.surum = self.im.fetchall()[0][0]
             if self.surum != self.surum2:
                 soru = askquestion(u"Güncelleme", u"Hava Durumu yazýlýmýnýn yeni sürümü çýktý.\nSürüm: %s\nGüncellemek ister misiniz ?" %surum)
